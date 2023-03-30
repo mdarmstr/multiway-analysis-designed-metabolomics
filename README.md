@@ -1,5 +1,5 @@
 # multiway-analysis-designed-metabolomics
-Supporting information for the multiway analysis book chapter
+Supporting information for the multiway analysis book chapter (DOI GOES HERE)
 
 Requires installation of two MATLAB toolboxes that are freely available. Download the following into the working directory to run the scripts:
 
