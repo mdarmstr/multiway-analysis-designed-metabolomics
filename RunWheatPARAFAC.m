@@ -1,7 +1,7 @@
 %% PARAFAC Example on Wheat Data
 %
 % Parallel Factor Analysis (PARAFAC) example with the data collected in Warth, B. et al. (2014).
-% Metabolomics, 11(3), 722�738. Data were downloaded from the MetaboLights
+% Metabolomics, 11(3), 722 - 738. Data were downloaded from the MetaboLights
 % metabolomics public data repository (www.ebi.ac.uk/\-metabolights, with
 % accession number MTBLS112).  Experiments aimed at identifying changes in
 % the metabolome of wheat (Triticum aestivum) induced by deoxynivalenol
@@ -44,7 +44,7 @@ load wheat
 X_m = X - mean(X);
 
 
-%% As per Pepe's suggestion, and working towards a general formulation, let's create a tensor using a for loop
+%% Tensor is generated using a loop
 utime = unique(time); % factor time
 for i=1:length(time)
     for j=1:length(utime)
@@ -101,14 +101,15 @@ end
 
 X = tnsr;
 
-%% What is the percent variance explained by the PARAFAC model, including the replicates?
+%% Percent variance explained by the PARAFAC model, including the replicates. First, test for the number of components.
 pftest(3,X,5,[0 0 0 0 NaN]);
 [~,~,err,corr] = parafac(X,1,[0,0,0,2,0,0]);
+disp('Percent variance explained by PARAFAC model, including replicates:')
 disp((sum(X(:).^2) - err)/ sum(X(:).^2) * 100) %32.97
+disp('Core consistency diagnostic:')
 disp(corr) %100
 
-pause()
-
+%% Building the PARAFAC models per replicate
 X_cell = cell(1,size(urep,1));
 Fstrct = cell(1,size(urep,1));
 
@@ -133,38 +134,34 @@ end
 %Plotting the treatment mode
 
 for ii = 1:size(urep,1)
-    lds(ii,:) = Fstrct{ii}{1};
+    lds_trt(ii,:) = Fstrct{ii}{1}; %#ok
 end
-md_mean = mean(lds);
-md_stdv = std(lds);
+md_mean = mean(lds_trt);
+md_stdv = std(lds_trt);
 
 plot_vec(md_mean,utreat,utreat); hold on;
 errorbar(md_mean,md_stdv,'.','CapSize',18,'Color','k'); hold off;
 title('PARAFAC loadings of treatment mode')
 saveas(gcf,'Fig/scores_parafac.eps','epsc');
 
-clear lds
-
 %plotting the time mode
 for ii = 1:size(urep,1)
-    lds(ii,:) = Fstrct{ii}{2};
+    lds_tim(ii,:) = Fstrct{ii}{2};
 end
-md_mean = mean(lds);
-md_stdv = std(lds);
+md_mean = mean(lds_tim);
+md_stdv = std(lds_tim);
 
 plot_vec(md_mean,utime); hold on;
 errorbar(md_mean,md_stdv,'.','CapSize',18,'Color','k'); hold off;
 title('PARAFAC loadings of time mode')
 saveas(gcf,'Fig/loadings_parafactime.eps','epsc');
 
-clear lds
-
 %plotting the trait mode
 for ii = 1:size(urep,1)
-    lds(ii,:) = Fstrct{ii}{3};
+    lds_trt(ii,:) = Fstrct{ii}{3};
 end
-md_mean = mean(lds);
-md_stdv = std(lds);
+md_mean = mean(lds_trt);
+md_stdv = std(lds_trt);
 
 %Plotting the trait mode
 plot_vec(md_mean,utrait); hold on;
@@ -172,14 +169,12 @@ errorbar(md_mean,md_stdv,'.','CapSize',18,'Color','k'); hold off;
 title('PARAFAC loadings of trait mode')
 saveas(gcf,'Fig/loadings_parafactrait.eps','epsc');
 
-clear lds
-
-%plotting the trait mode
+%plotting the metabolite mode
 for ii = 1:size(urep,1)
-    lds(ii,:) = Fstrct{ii}{4};
+    lds_met(ii,:) = Fstrct{ii}{4};
 end
-md_mean = mean(lds);
-md_stdv = std(lds);
+md_mean = mean(lds_met);
+md_stdv = std(lds_met);
 
 %Plotting the metabolite mode
 plot_vec(md_mean,var_l); hold on;
@@ -194,8 +189,6 @@ xlabel('Replicates');
 ylabel('% VAR EXP / CONCORDIA')
 legend({'CONCORDIA', 'VAR. EXPLAINED'},'Location','southeast')
 saveas(gcf,'Fig/parafac_performance.eps','epsc');
-
-clear lds
 
 save("parafac_met.mat","md_mean");
 
