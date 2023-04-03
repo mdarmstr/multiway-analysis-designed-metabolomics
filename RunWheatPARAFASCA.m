@@ -42,7 +42,8 @@ clear all %#ok
 close all
 load wheat
 
-Xm = X - mean(X);
+grand_mean = mean(X);
+Xm = X - grand_mean;
 
 %% Building the design matrix
 
@@ -159,8 +160,6 @@ for ii = 1:5
 
 end
 
-%% Plotting results
-
 %Plotting the treatment mode
 
 for ii = 1:size(urep,1)
@@ -186,6 +185,7 @@ errorbar(md_mean,md_stdv,'.','CapSize',18,'Color','k'); hold off;
 title('PARAFASCA loadings of time mode')
 saveas(gcf,'Fig/loadings_parafascatime.eps','epsc');
 
+
 %plotting the trait mode
 for ii = 1:size(urep,1)
     lds3(ii,:) = Fp_3{ii}; %#ok
@@ -199,6 +199,7 @@ errorbar(md_mean,md_stdv,'.','CapSize',18,'Color','k'); hold off;
 title('PARAFASCA loadings of trait mode')
 saveas(gcf,'Fig/loadings_parafascatrait.eps','epsc');
 
+
 %plotting the trait mode
 for ii = 1:size(urep,1)
     lds4(ii,:) = Fp_4{ii}; %#ok
@@ -206,7 +207,7 @@ end
 md_mean = mean(lds4);
 md_stdv = std(lds4);
 
-%plotting the metabolite mode
+%Plotting the metabolite mode
 plot_vec(md_mean,var_l); hold on;
 errorbar(md_mean,md_stdv,'.','CapSize',6,'Color','k'); hold off;
 title('PARAFASCA loadings of metabolite mode')
@@ -214,8 +215,17 @@ saveas(gcf,'Fig/loadings_parafascamet.eps','epsc');
 
 %% Calculating on percent variance explained on one replicate
 pvar = (sum(To(:).^2) - err)/ sum(To(:).^2) * 100;
+
+SSQ = cell(5,1);
+SSQ{1} = sum(grand_mean.^2); %SSQ associated with the mean
+SSQ{2} = sum(Xr(:).^2); %SSQ associated with the GLM model
+SSQ{3} = sum(paranovao.residuals(:).^2); %SSQ associated with the GLM model
+SSQ{4} = sum(cat(1,Fc{:}).^2); %SSQ associated with the PARAFAC model
+SSQ{5} = err; %SSQ associated with the error of the PARAFAC model.
+
 disp(pvar)
 disp(corr)
+disp(SSQ)
 
 save("parafasca_met.mat","md_mean")
  
