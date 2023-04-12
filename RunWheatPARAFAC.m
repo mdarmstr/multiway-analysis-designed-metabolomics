@@ -126,7 +126,7 @@ corr_parafac = zeros(5,1);
 for ii = 1:size(urep,1)
     %Build a 1-component PARAFAC model without any additional scaling and no constraints.
     [F,iter,err,corr] = parafac(X_cell{1,ii},1,[0,0,0,2,0,0]);
-    pvar_parafac(ii) = (sum(tnsr(:).^2) - err)/ sum(tnsr(:).^2) * 100;
+    pvar_parafac(ii) = (sum(X_cell{1,ii}(:).^2) - err)/ sum(X_cell{1,ii}(:).^2) * 100;
     corr_parafac(ii) = corr;
     Fstrct{1,ii} = F;
 end
